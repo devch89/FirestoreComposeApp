@@ -1,4 +1,6 @@
 package com.example.firestorecomposeapp.data.repo.auth
 
-class AuthRepositoryImpl {
+import com.google.firebase.auth.FirebaseAuth
+
+class AuthRepositoryImpl(firebaseAuth: FirebaseAuth) : AuthRepository {
 }
