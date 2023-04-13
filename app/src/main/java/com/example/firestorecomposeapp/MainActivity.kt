@@ -13,13 +13,19 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import android.provider.Settings
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.ContextCompat.startActivity
@@ -80,87 +86,125 @@ class MainActivity : ComponentActivity() {
 @RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun MainScreen(viewModel: FirestoreViewModel, activity: Activity){
-    val state = viewModel.viewTasks.value
-//    val locationApi by lazy {
-//        LocationApi
-//    }
-
-    when(state){
-        is DataState.LOADING -> {}
-        is DataState.SUCCESS -> {
-            ShowItems(state.response)
-        }
-        is DataState.ERROR -> {}
-    }
-
-
-    Column()
-    {
-        val context = LocalContext.current
-        val locationApi = LocationApiImpl(context)
-        val notification = Notification()
-        val locationManager = getSystemService(context, LocationManager::class.java)
-
-
-        Button(onClick = {
-            locationApi.startTracking(3000L, notification){
-                val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-                startActivity(context, intent, bundleOf(Pair("x","")))
+    Scaffold(
+        floatingActionButtonPosition = FabPosition.End,
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                          //todo Implement Floating Action Button action
+                },
+            ){
+                Icon(imageVector = Icons.Filled.Add, contentDescription = "Add")
             }
-        }) {
-            Text(text = "Track Location")
         }
+    ) {
 
-        Button(onClick = {
-            locationApi.stopTracking()
-        }) {
-            Text(text = "Stop Tracking")
-        }
+        var selectedTabIndex by remember { mutableStateOf(0) }
+        val tabs = listOf("Task manager","Location SDK")
 
-        Button(onClick = {
-            Toast.makeText(context, "${locationApi.isLocationEnabled()}", Toast.LENGTH_SHORT).show()
-        }) {
-            Text(text = "Tracking Status")
-        }
-
-        Button(onClick = {
-            Toast.makeText(context, "${locationApi.checkPermissions()}", Toast.LENGTH_SHORT).show()
-        }) {
-            Text(text = "Check Permission")
-        }
-
-        Button(onClick = {
-            locationApi.requestPermissions{
-                if (it){
-                    Toast.makeText(context, "Permission granted", Toast.LENGTH_SHORT).show()
-                }else{
-                    ActivityCompat.requestPermissions(
-                        activity,
-                        arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
-                        1
+        Column {
+            TabRow(
+                selectedTabIndex = selectedTabIndex) {
+                tabs.forEachIndexed { index, title ->
+                    Tab(
+                        text = { Text(title) },
+                        selected = selectedTabIndex == index,
+                        onClick = { selectedTabIndex = index }
                     )
                 }
             }
-        }) {
-            Text(text = "Request Permission")
+
+            if ( selectedTabIndex == 0){
+
+
+                val state = viewModel.viewTasks.value
+
+                when(state){
+                    is DataState.LOADING -> {}
+                    is DataState.SUCCESS -> {
+                        ShowItems(state.response,activity)
+                    }
+                    is DataState.ERROR -> {}
+                }
+
+
+            } else {
+                Column()
+                {
+                    val context = LocalContext.current
+                    val locationApi = LocationApiImpl(context)
+                    val notification = Notification()
+                    val locationManager = getSystemService(context, LocationManager::class.java)
+
+
+                    Button(onClick = {
+                        locationApi.startTracking(3000L, notification){
+                            val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                            startActivity(context, intent, bundleOf(Pair("x","")))
+                        }
+                    }) {
+                        Text(text = "Track Location")
+                    }
+
+                    Button(onClick = {
+                        locationApi.stopTracking()
+                    }) {
+                        Text(text = "Stop Tracking")
+                    }
+
+                    Button(onClick = {
+                        Toast.makeText(context, "${locationApi.isLocationEnabled()}", Toast.LENGTH_SHORT).show()
+                    }) {
+                        Text(text = "Tracking Status")
+                    }
+
+                    Button(onClick = {
+                        Toast.makeText(context, "${locationApi.checkPermissions()}", Toast.LENGTH_SHORT).show()
+                    }) {
+                        Text(text = "Check Permission")
+                    }
+
+                    Button(onClick = {
+                        locationApi.requestPermissions{
+                            if (it){
+                                Toast.makeText(context, "Permission granted", Toast.LENGTH_SHORT).show()
+                            }else{
+                                ActivityCompat.requestPermissions(
+                                    activity,
+                                    arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
+                                    1
+                                )
+                            }
+                        }
+                    }) {
+                        Text(text = "Request Permission")
+                    }
+
+                    Button(onClick = {
+                        locationApi.requestPermissions{
+                            if (it){
+                                Toast.makeText(context, "Permission granted", Toast.LENGTH_SHORT).show()
+                            }else{
+                                ActivityCompat.requestPermissions(
+                                    activity,
+                                    arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
+                                    1
+                                )
+                            }
+                        }
+                    }) {
+                        Text(text = "Enable Location")
+                    }
+                }
+
+            }
+
         }
 
-        Button(onClick = {
-            locationApi.requestPermissions{
-                if (it){
-                    Toast.makeText(context, "Permission granted", Toast.LENGTH_SHORT).show()
-                }else{
-                    ActivityCompat.requestPermissions(
-                        activity,
-                        arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
-                        1
-                    )
-                }
-            }
-        }) {
-            Text(text = "Enable Location")
-        }
+
     }
+
+
 }
 
 @Composable
@@ -193,15 +237,14 @@ fun EntryTaskScreen(viewModel: FirestoreViewModel){
 }
 
 @Composable
-fun ShowItems(response: List<Task>) {
+fun ShowItems(response: List<Task>, activity: Activity) {
     LazyColumn{
         items(items = response) {
-            TaskItem(task = Task())
+            TaskItem(task = it)
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskItem(task: Task) {
     Card {
