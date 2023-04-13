@@ -45,7 +45,7 @@ class FirestoreRepositoryImpl(
                     it.toObjects(Task::class.java),
                     object: TypeToken<List<Task>>(){}.type)
 
-                Log.d(TAG, "getAllTasks: ${data}")
+                Log.d(TAG, "getAllTasks: $data")
 
                 _tasks.value = DataState.SUCCESS(it.toObjects(Task::class.java))
 
