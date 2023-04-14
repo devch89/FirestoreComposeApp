@@ -1,6 +1,6 @@
-package com.example.firestorecomposeapp.ui.screens.signin
+package com.example.firestorecomposeapp.ui.screens.signin.signup
 
-data class SignInState(
+data class SignUpState(
     val isLoading: Boolean = false,
     val isSuccess: String? = "",
     val isError: String? = ""
