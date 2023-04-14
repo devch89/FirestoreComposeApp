@@ -46,6 +46,7 @@ class FirestoreViewModel(
         viewModelScope.launch {
             repository.insertNewTasks(task) {
                 _insertState.value = it
+                getTasks()
             }
         }
 
