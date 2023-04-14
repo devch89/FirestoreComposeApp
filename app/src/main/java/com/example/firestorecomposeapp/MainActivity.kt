@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import android.provider.Settings
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -28,11 +30,20 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.firestorecomposeapp.firestore.location.LocationReceiver
 import com.example.firestorecomposeapp.firestore.location.LocationReceiver.Companion.intentFilter
 import com.example.firestorecomposeapp.data.model.Task
+import com.example.firestorecomposeapp.firestore.FirestoreRepositoryImpl
+import com.example.firestorecomposeapp.navigation.FirestoreNavGraph
 import com.example.firestorecomposeapp.ui.theme.FirestoreComposeAppTheme
 import com.example.firestorecomposeapp.util.DataState
 import com.example.firestorecomposeapp.viewmodel.FirestoreViewModel
+import com.example.injection_sdk.Injection
 import com.example.location_sdk.LocationApiImpl
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import com.google.gson.Gson
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val firestoreViewModel by lazy{
@@ -55,11 +66,15 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     MainScreen(firestoreViewModel, this)
-
-
+                    Injection.addDependency(Firebase.firestore)
+                    Injection.addDependency(Firebase.analytics)
+                    Injection.addDependency(Gson())
+                    Injection.addDependency(FirestoreRepositoryImpl())
+                    App()
                 }
             }
         }
+
     }
 
     override fun onStart() {
@@ -80,87 +95,125 @@ class MainActivity : ComponentActivity() {
 @RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun MainScreen(viewModel: FirestoreViewModel, activity: Activity){
-    val state = viewModel.viewTasks.value
-//    val locationApi by lazy {
-//        LocationApi
-//    }
-
-    when(state){
-        is DataState.LOADING -> {}
-        is DataState.SUCCESS -> {
-            ShowItems(state.response)
-        }
-        is DataState.ERROR -> {}
-    }
-
-
-    Column()
-    {
-        val context = LocalContext.current
-        val locationApi = LocationApiImpl(context)
-        val notification = Notification()
-        val locationManager = getSystemService(context, LocationManager::class.java)
-
-
-        Button(onClick = {
-            locationApi.startTracking(3000L, notification){
-                val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-                startActivity(context, intent, bundleOf(Pair("x","")))
+    Scaffold(
+        floatingActionButtonPosition = FabPosition.End,
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    //todo Implement Floating Action Button action
+                },
+            ){
+                Icon(imageVector = Icons.Filled.Add, contentDescription = "Add")
             }
-        }) {
-            Text(text = "Track Location")
         }
+    ) {
 
-        Button(onClick = {
-            locationApi.stopTracking()
-        }) {
-            Text(text = "Stop Tracking")
-        }
+        var selectedTabIndex by remember { mutableStateOf(0) }
+        val tabs = listOf("Task manager","Location SDK")
 
-        Button(onClick = {
-            Toast.makeText(context, "${locationApi.isLocationEnabled()}", Toast.LENGTH_SHORT).show()
-        }) {
-            Text(text = "Tracking Status")
-        }
-
-        Button(onClick = {
-            Toast.makeText(context, "${locationApi.checkPermissions()}", Toast.LENGTH_SHORT).show()
-        }) {
-            Text(text = "Check Permission")
-        }
-
-        Button(onClick = {
-            locationApi.requestPermissions{
-                if (it){
-                    Toast.makeText(context, "Permission granted", Toast.LENGTH_SHORT).show()
-                }else{
-                    ActivityCompat.requestPermissions(
-                        activity,
-                        arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
-                        1
+        Column {
+            TabRow(
+                selectedTabIndex = selectedTabIndex) {
+                tabs.forEachIndexed { index, title ->
+                    Tab(
+                        text = { Text(title) },
+                        selected = selectedTabIndex == index,
+                        onClick = { selectedTabIndex = index }
                     )
                 }
             }
-        }) {
-            Text(text = "Request Permission")
+
+            if ( selectedTabIndex == 0){
+
+
+                val state = viewModel.viewTasks.value
+
+                when(state){
+                    is DataState.LOADING -> {}
+                    is DataState.SUCCESS -> {
+                        ShowItems(state.response,activity)
+                    }
+                    is DataState.ERROR -> {}
+                }
+
+
+            } else {
+                Column()
+                {
+                    val context = LocalContext.current
+                    val locationApi = LocationApiImpl(context)
+                    val notification = Notification()
+                    val locationManager = getSystemService(context, LocationManager::class.java)
+
+
+                    Button(onClick = {
+                        locationApi.startTracking(3000L, notification){
+                            val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                            startActivity(context, intent, bundleOf(Pair("x","")))
+                        }
+                    }) {
+                        Text(text = "Track Location")
+                    }
+
+                    Button(onClick = {
+                        locationApi.stopTracking()
+                    }) {
+                        Text(text = "Stop Tracking")
+                    }
+
+                    Button(onClick = {
+                        Toast.makeText(context, "${locationApi.isLocationEnabled()}", Toast.LENGTH_SHORT).show()
+                    }) {
+                        Text(text = "Tracking Status")
+                    }
+
+                    Button(onClick = {
+                        Toast.makeText(context, "${locationApi.checkPermissions()}", Toast.LENGTH_SHORT).show()
+                    }) {
+                        Text(text = "Check Permission")
+                    }
+
+                    Button(onClick = {
+                        locationApi.requestPermissions{
+                            if (it){
+                                Toast.makeText(context, "Permission granted", Toast.LENGTH_SHORT).show()
+                            }else{
+                                ActivityCompat.requestPermissions(
+                                    activity,
+                                    arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
+                                    1
+                                )
+                            }
+                        }
+                    }) {
+                        Text(text = "Request Permission")
+                    }
+
+                    Button(onClick = {
+                        locationApi.requestPermissions{
+                            if (it){
+                                Toast.makeText(context, "Permission granted", Toast.LENGTH_SHORT).show()
+                            }else{
+                                ActivityCompat.requestPermissions(
+                                    activity,
+                                    arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
+                                    1
+                                )
+                            }
+                        }
+                    }) {
+                        Text(text = "Enable Location")
+                    }
+                }
+
+            }
+
         }
 
-        Button(onClick = {
-            locationApi.requestPermissions{
-                if (it){
-                    Toast.makeText(context, "Permission granted", Toast.LENGTH_SHORT).show()
-                }else{
-                    ActivityCompat.requestPermissions(
-                        activity,
-                        arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
-                        1
-                    )
-                }
-            }
-        }) {
-            Text(text = "Enable Location")
-        }
+
     }
+
+
 }
 
 @Composable
@@ -175,15 +228,15 @@ fun EntryTaskScreen(viewModel: FirestoreViewModel){
         TextField(
             value = task.value.title ,
             onValueChange = {task.value.copy(category = it) }
-                )
+        )
         TextField(
             value = task.value.title ,
             onValueChange = {task.value.copy(location = it) }
-                )
+        )
         TextField(
             value = task.value.title ,
             onValueChange = {task.value.copy(time = it) }
-                )
+        )
 
         Button(onClick = { viewModel.viewTasks.value }) {
             Text(text = "SAVE")
@@ -193,15 +246,14 @@ fun EntryTaskScreen(viewModel: FirestoreViewModel){
 }
 
 @Composable
-fun ShowItems(response: List<Task>) {
+fun ShowItems(response: List<Task>, activity: Activity) {
     LazyColumn{
         items(items = response) {
-            TaskItem(task = Task())
+            TaskItem(task = it)
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskItem(task: Task) {
     Card {
@@ -215,14 +267,14 @@ fun TaskItem(task: Task) {
 }
 
 @Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
+fun App() {
+    FirestoreNavGraph()
 }
 
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
     FirestoreComposeAppTheme {
-        Greeting("Android")
+        App()
     }
 }

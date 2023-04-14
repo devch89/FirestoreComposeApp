@@ -18,8 +18,8 @@ private const val TAG = "FirestoreRepository"
 
 interface FirestoreRepository {
     val tasks:  StateFlow<DataState>
-     fun getAllTasks()
-     fun insertNewTasks(task: Task, result: (Boolean) -> Unit)
+    fun getAllTasks()
+    fun insertNewTasks(task: Task, result: (Boolean) -> Unit)
 }
 
 class FirestoreRepositoryImpl(
@@ -30,7 +30,7 @@ class FirestoreRepositoryImpl(
 
     private val _tasks: MutableStateFlow<DataState> = MutableStateFlow(DataState.LOADING)
     override val tasks: StateFlow<DataState>
-    get()= _tasks
+        get()= _tasks
 
     override  fun getAllTasks() {
 
@@ -45,7 +45,7 @@ class FirestoreRepositoryImpl(
                     it.toObjects(Task::class.java),
                     object: TypeToken<List<Task>>(){}.type)
 
-                Log.d(TAG, "getAllTasks: ${data}")
+                Log.d(TAG, "getAllTasks: $data")
 
                 _tasks.value = DataState.SUCCESS(it.toObjects(Task::class.java))
 
@@ -54,8 +54,8 @@ class FirestoreRepositoryImpl(
                     Pair("DATA",
                         gson.toJson(
                             it.toObjects(Task::class.java),
-                        object: TypeToken<List<Task>>(){}.type)
-                        )
+                            object: TypeToken<List<Task>>(){}.type)
+                    )
                 ))
             }
 
