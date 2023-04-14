@@ -10,6 +10,7 @@ import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -23,7 +24,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
@@ -31,6 +36,7 @@ import androidx.core.content.ContextCompat.startActivity
 import androidx.core.os.bundleOf
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.firestorecomposeapp.MainActivity
 import com.example.firestorecomposeapp.data.model.Task
 import com.example.firestorecomposeapp.ui.theme.ltgray_dot
 import com.example.firestorecomposeapp.util.DataState
@@ -140,7 +146,7 @@ fun AddTaskToTaskScreen(viewModel: FirestoreViewModel, activity: Activity) {
             ),
             shape = RoundedCornerShape(15.dp)
         ) {
-            Text(text = "Add tas", color = Color.White, modifier = Modifier.padding(7.dp))
+            Text(text = "Add task", color = Color.White, modifier = Modifier.padding(7.dp))
         }
 
     }
@@ -153,21 +159,10 @@ fun TaskScreen(
     viewModel: FirestoreViewModel = hiltViewModel(),
 ){
     val activity = Activity()
-    Scaffold(
-        floatingActionButtonPosition = FabPosition.End,
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    //todo Implement Floating Action Button action
-                },
-            ){
-                Icon(imageVector = Icons.Filled.Add, contentDescription = "Add")
-            }
-        }
-    ) {
+    Scaffold() {
 
         var selectedTabIndex by remember { mutableStateOf(0) }
-        val tabs = listOf("Task manager","Location SDK")
+        val tabs = listOf("Task manager","Adding/Tracking")
 
         Column {
             TabRow(
@@ -202,6 +197,7 @@ fun TaskScreen(
                     val locationApi = LocationApiImpl(context)
                     val notification = Notification()
                     val locationManager = getSystemService(context, LocationManager::class.java)
+                    val activityTask = context as MainActivity
 
 
                     Button(onClick = {
@@ -262,6 +258,7 @@ fun TaskScreen(
                     }) {
                         Text(text = "Enable Location")
                     }
+                    AddTaskToTaskScreen(viewModel = viewModel, activity = activityTask )
                 }
 
             }
@@ -314,12 +311,23 @@ fun ShowItems(response: List<Task>, activity: Activity) {
 
 @Composable
 fun TaskItem(task: Task) {
-    Card {
+    Card(
+        modifier = Modifier.fillMaxWidth()
+    ) {
         Column {
-            Text(text =task.time)
-            Text(text =task.title)
-            Text(text =task.category)
-            Text(text =task.location)
+            Text(
+                text = task.title,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .background(Color.Gray)
+                    .fillMaxWidth()
+                    .padding(10.dp)
+            )
+            Text(text = task.category, fontSize = 20.sp)
+            Text(text = task.time, fontStyle = FontStyle.Italic)
+            Text(text = task.location, fontStyle = FontStyle.Italic)
         }
     }
 }
