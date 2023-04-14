@@ -35,7 +35,7 @@ class LocationApiImpl(private val context: Context) : LocationApi {
 
     private lateinit var locationManager: LocationManager
 
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private val fusedLocationClient: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
     private var startedLocationTracking = false
     lateinit var notification: Notification
     private val locationCallback = MyLocationCallback()
@@ -82,7 +82,6 @@ class LocationApiImpl(private val context: Context) : LocationApi {
 
     override fun startTracking(interval: Long, foregroundNotification: Notification, enableLocation : () -> Unit) {
         Log.d(TAG, "startTracking: Tracking has started")
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
         if (!startedLocationTracking) {
             locationManager = getSystemService(context, LocationManager::class.java) as LocationManager
             if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
