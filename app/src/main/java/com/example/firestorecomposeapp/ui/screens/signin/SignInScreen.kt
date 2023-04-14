@@ -214,6 +214,14 @@ fun SignInScreen(
                 }
             }
 
+            LaunchedEffect(key1 = googleSignInState.error) {
+                scope.launch {
+                    if (googleSignInState.error.isNullOrEmpty()) {
+                        Toast.makeText(context, "Sign In Error", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+
         }
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
             if (googleSignInState.loading) {

@@ -13,6 +13,7 @@ import com.example.firestorecomposeapp.data.model.Task
 import com.example.firestorecomposeapp.util.DataState
 import kotlinx.coroutines.launch
 
+
 class FirestoreViewModel(
     private val repository: FirestoreRepository = FirestoreRepositoryImpl(),
     private val locationUseCase: LocationUseCase = LocationUseCase()
