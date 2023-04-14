@@ -1,5 +1,7 @@
 package com.example.firestorecomposeapp.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -9,6 +11,7 @@ import androidx.navigation.NavHostController
 import com.example.firestorecomposeapp.navigation.dump.animatedComposable
 import com.example.firestorecomposeapp.ui.screens.signin.SignInScreen
 import com.example.firestorecomposeapp.ui.screens.signin.SignInScreenActions
+import com.example.firestorecomposeapp.ui.screens.task.TaskScreen
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 
@@ -17,6 +20,7 @@ sealed class Screen(val name: String, val route: String) {
     object Task: Screen("task","task")
 }
 
+@RequiresApi(Build.VERSION_CODES.P)
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun FirestoreNavGraph(
@@ -33,6 +37,10 @@ fun FirestoreNavGraph(
     ) {
         animatedComposable(Screen.SignIn.route) {
             SignInScreen(onAction = actions::navigateFromSignIn, navController = navController)
+        }
+
+        animatedComposable(Screen.Task.route) {
+            TaskScreen( navController = navController)
         }
     }
 }

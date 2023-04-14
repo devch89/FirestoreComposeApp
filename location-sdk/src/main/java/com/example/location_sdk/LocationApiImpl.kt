@@ -12,11 +12,10 @@ import android.provider.CallLog
 import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.*
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+
 
 private const val TAG = "LocationApiImpl"
 
@@ -35,19 +34,23 @@ class LocationApiImpl(private val context: Context) : LocationApi {
 
     private lateinit var locationManager: LocationManager
 
-    private val fusedLocationClient: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
+    private val fusedLocationClient: FusedLocationProviderClient =
+        LocationServices.getFusedLocationProviderClient(context)
     private var startedLocationTracking = false
     lateinit var notification: Notification
     private val locationCallback = MyLocationCallback()
-
+    var lastKnowLocation: Location = Location("")
     override fun init(context: Context) {
-
 //        isLocationEnabled()
 //        startTracking(5000L, notification){
 //
 //        }
 //        stopTracking()
 
+    }
+
+    fun getLocation(): Flow<Location> = flow {
+        emit(lastKnowLocation)
     }
 
     override fun requestPermissions(permissionGranted: (Boolean) -> Unit) {
@@ -77,13 +80,19 @@ class LocationApiImpl(private val context: Context) : LocationApi {
     }
 
     override fun getLastKnownLocation(): Flow<Location> {
-        TODO("Not yet implemented")
+        Log.d(TAG, "getLastKnownLocation: ${getLocation()}")
+        return getLocation()
     }
 
-    override fun startTracking(interval: Long, foregroundNotification: Notification, enableLocation : () -> Unit) {
+    override fun startTracking(
+        interval: Long,
+        foregroundNotification: Notification,
+        enableLocation: () -> Unit
+    ) {
         Log.d(TAG, "startTracking: Tracking has started")
         if (!startedLocationTracking) {
-            locationManager = getSystemService(context, LocationManager::class.java) as LocationManager
+            locationManager =
+                getSystemService(context, LocationManager::class.java) as LocationManager
             if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 enableLocation.invoke()
             }
@@ -92,7 +101,11 @@ class LocationApiImpl(private val context: Context) : LocationApi {
 //            noinspection MissingPermission
             fusedLocationClient.requestLocationUpdates(
                 locationRequest,
-                locationCallback,
+                { locationResult ->
+                    locationResult ?: return@requestLocationUpdates
+                    lastKnowLocation = locationResult
+                    Log.d(TAG, "startTracking: this is the location $lastKnowLocation")
+                },
                 Looper.getMainLooper()
             )
             startedLocationTracking = true
