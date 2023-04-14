@@ -32,6 +32,7 @@ import com.example.firestorecomposeapp.firestore.location.LocationReceiver.Compa
 import com.example.firestorecomposeapp.data.model.Task
 import com.example.firestorecomposeapp.firestore.FirestoreRepositoryImpl
 import com.example.firestorecomposeapp.navigation.FirestoreNavGraph
+import com.example.firestorecomposeapp.ui.screens.task.AddTaskToTaskScreen
 import com.example.firestorecomposeapp.ui.screens.task.TaskScreen
 import com.example.firestorecomposeapp.ui.theme.FirestoreComposeAppTheme
 import com.example.firestorecomposeapp.util.DataState
@@ -66,7 +67,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    App()
+//                    App()
+                    AddTaskToTaskScreen(viewModel = firestoreViewModel, activity = this)
                     Injection.addDependency(Firebase.firestore)
                     Injection.addDependency(Firebase.analytics)
                     Injection.addDependency(Gson())
@@ -269,7 +271,9 @@ class MainActivity : ComponentActivity() {
 @RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun App() {
-    FirestoreNavGraph()
+   // FirestoreNavGraph()
+
+
 }
 
 @RequiresApi(Build.VERSION_CODES.P)

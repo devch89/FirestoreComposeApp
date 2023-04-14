@@ -3,12 +3,19 @@ package com.example.firestorecomposeapp.ui.screens.task
 import android.app.Activity
 import android.app.Notification
 import android.content.Intent
+import android.location.LocationManager
+import android.os.Build
 
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -19,9 +26,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.content.ContextCompat.startActivity
 import androidx.core.os.bundleOf
+import androidx.navigation.NavController
 import com.example.firestorecomposeapp.data.model.Task
 import com.example.firestorecomposeapp.ui.theme.ltgray_dot
+import com.example.firestorecomposeapp.util.DataState
 import com.example.firestorecomposeapp.viewmodel.FirestoreViewModel
 import com.example.location_sdk.LocationApiImpl
 import kotlinx.coroutines.flow.collect
@@ -41,8 +52,7 @@ fun AddTaskToTaskScreen(viewModel: FirestoreViewModel, activity: Activity) {
 
     locationApi.requestPermissions {
         if (it) {
-            Toast.makeText(context, "Permission granted", Toast.LENGTH_SHORT)
-                .show()
+            Log.d(TAG, "AddTaskToTaskScreen: Permission Granted")
         } else {
             ActivityCompat.requestPermissions(
                 activity,
