@@ -36,8 +36,8 @@ fun FirestoreNavGraph(
         modifier = modifier
     ) {
         animatedComposable(Screen.SignIn.route) {
-//            SignInScreen(onAction = actions::navigateFromSignIn, navController = navController)
-            TaskScreen( navController = navController)
+            SignInScreen(onAction = actions::navigateFromSignIn, navController = navController)
+//            TaskScreen( navController = navController)
 
         }
 
