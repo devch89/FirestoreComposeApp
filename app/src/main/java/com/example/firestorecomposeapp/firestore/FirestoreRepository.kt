@@ -73,7 +73,7 @@ class FirestoreRepositoryImpl(
     }
 
     override  fun insertNewTasks(task: Task, result: (Boolean) -> Unit) {
-        firestore.collection("tasksCollection")
+        firestore.collection("taskCollection")
             .document(task.title)
             .set(task)
             .addOnSuccessListener {
