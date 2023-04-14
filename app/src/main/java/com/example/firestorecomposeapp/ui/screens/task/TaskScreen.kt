@@ -29,6 +29,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.ContextCompat.startActivity
 import androidx.core.os.bundleOf
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.firestorecomposeapp.data.model.Task
 import com.example.firestorecomposeapp.ui.theme.ltgray_dot
@@ -147,9 +148,10 @@ fun AddTaskToTaskScreen(viewModel: FirestoreViewModel, activity: Activity) {
 
 @Composable
 @RequiresApi(Build.VERSION_CODES.P)
-fun TaskScreen(navController: NavController,
-               viewModel: FirestoreViewModel = FirestoreViewModel(),
-               ){
+fun TaskScreen(
+    navController: NavController,
+    viewModel: FirestoreViewModel = hiltViewModel(),
+){
     val activity = Activity()
     Scaffold(
         floatingActionButtonPosition = FabPosition.End,

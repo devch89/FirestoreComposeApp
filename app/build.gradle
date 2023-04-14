@@ -97,6 +97,16 @@ dependencies {
     // FAB
     implementation "androidx.compose.material3:material3:1.0.1"
 
+    implementation 'com.google.devtools.ksp:symbol-processing-api:1.8.0-1.0.9'
+    // Room database
+    def room_version = "2.5.1"
+    implementation "androidx.room:room-runtime:$room_version"
+    annotationProcessor "androidx.room:room-compiler:$room_version"
+
+    // To use Kotlin annotation processing tool (kapt)
+    kapt "androidx.room:room-compiler:$room_version"
+    implementation "androidx.room:room-ktx:2.5.1"
+
 
 
     // TODO: Add the dependencies for Firebase products you want to use
@@ -104,10 +114,8 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics-ktx'
     implementation "com.google.firebase:firebase-firestore-ktx"
     //Firebase
-    implementation 'com.google.firebase:firebase-auth-ktx:21.0.3'
+    implementation 'com.google.firebase:firebase-auth-ktx:21.3.0'
     implementation 'com.google.firebase:firebase-auth:21.3.0'
-
-
 
     // TODO: Add the dependencies for Google Services you want to use
     implementation 'com.google.android.gms:play-services-location:21.0.1'
