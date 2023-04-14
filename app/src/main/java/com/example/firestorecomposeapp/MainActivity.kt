@@ -34,11 +34,20 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.firestorecomposeapp.firestore.location.LocationReceiver
 import com.example.firestorecomposeapp.firestore.location.LocationReceiver.Companion.intentFilter
 import com.example.firestorecomposeapp.data.model.Task
+import com.example.firestorecomposeapp.firestore.FirestoreRepositoryImpl
+import com.example.firestorecomposeapp.navigation.FirestoreNavGraph
 import com.example.firestorecomposeapp.ui.theme.FirestoreComposeAppTheme
 import com.example.firestorecomposeapp.util.DataState
 import com.example.firestorecomposeapp.viewmodel.FirestoreViewModel
+import com.example.injection_sdk.Injection
 import com.example.location_sdk.LocationApiImpl
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import com.google.gson.Gson
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val firestoreViewModel by lazy{
@@ -61,11 +70,15 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     MainScreen(firestoreViewModel, this)
+                    Injection.addDependency(Firebase.firestore)
+                    Injection.addDependency(Firebase.analytics)
+                    Injection.addDependency(Gson())
 
-
+                    App()
                 }
             }
         }
+
     }
 
     override fun onStart() {
@@ -91,7 +104,9 @@ fun MainScreen(viewModel: FirestoreViewModel, activity: Activity){
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                          //todo Implement Floating Action Button action
+
+                    //todo Implement Floating Action Button action
+
                 },
             ){
                 Icon(imageVector = Icons.Filled.Add, contentDescription = "Add")
@@ -219,15 +234,15 @@ fun EntryTaskScreen(viewModel: FirestoreViewModel){
         TextField(
             value = task.value.title ,
             onValueChange = {task.value.copy(category = it) }
-                )
+        )
         TextField(
             value = task.value.title ,
             onValueChange = {task.value.copy(location = it) }
-                )
+        )
         TextField(
             value = task.value.title ,
             onValueChange = {task.value.copy(time = it) }
-                )
+        )
 
         Button(onClick = { viewModel.viewTasks.value }) {
             Text(text = "SAVE")
@@ -258,14 +273,14 @@ fun TaskItem(task: Task) {
 }
 
 @Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
+fun App() {
+    FirestoreNavGraph()
 }
 
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
     FirestoreComposeAppTheme {
-        Greeting("Android")
+        App()
     }
 }

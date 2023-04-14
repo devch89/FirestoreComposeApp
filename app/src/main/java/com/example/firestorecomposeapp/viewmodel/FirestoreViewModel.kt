@@ -11,11 +11,14 @@ import com.example.firestorecomposeapp.firestore.FirestoreRepositoryImpl
 import com.example.firestorecomposeapp.firestore.location.LocationUseCase
 import com.example.firestorecomposeapp.data.model.Task
 import com.example.firestorecomposeapp.util.DataState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class FirestoreViewModel(
-    private val repository: FirestoreRepository = FirestoreRepositoryImpl(),
-    private val locationUseCase: LocationUseCase = LocationUseCase()
+@HiltViewModel
+class FirestoreViewModel @Inject constructor(
+    private val repository: FirestoreRepository,
+    private val locationUseCase: LocationUseCase
 ) :ViewModel() {
 
     private val _viewTasks: MutableState<DataState> = mutableStateOf(DataState.LOADING)
@@ -53,9 +56,14 @@ class FirestoreViewModel(
     fun retrieveLocation(){
         viewModelScope.launch {
             locationUseCase.locationFlow.collect{
-                _location?.value = it
+                _location.value = it
             }
 
         }
+    }
+
+    override fun onCleared() {
+        repository.cancel()
+        super.onCleared()
     }
 }
