@@ -1,46 +1,21 @@
 package com.example.firestorecomposeapp
 
-import android.app.Activity
-import android.app.Notification
-import android.content.Intent
-import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import android.provider.Settings
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.core.content.ContextCompat.startActivity
-import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModelProvider
 import com.example.firestorecomposeapp.firestore.location.LocationReceiver
 import com.example.firestorecomposeapp.firestore.location.LocationReceiver.Companion.intentFilter
-import com.example.firestorecomposeapp.data.model.Task
-import com.example.firestorecomposeapp.firestore.FirestoreRepositoryImpl
 import com.example.firestorecomposeapp.navigation.FirestoreNavGraph
-import com.example.firestorecomposeapp.firestore.FirestoreRepositoryImpl
-import com.example.firestorecomposeapp.navigation.FirestoreNavGraph
-import com.example.firestorecomposeapp.ui.screens.task.AddTaskToTaskScreen
-import com.example.firestorecomposeapp.ui.screens.task.TaskScreen
 import com.example.firestorecomposeapp.ui.theme.FirestoreComposeAppTheme
-import com.example.firestorecomposeapp.util.DataState
 import com.example.firestorecomposeapp.viewmodel.FirestoreViewModel
 import com.example.injection_sdk.Injection
-import com.example.location_sdk.LocationApiImpl
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -69,12 +44,11 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-//                    App()
-                    AddTaskToTaskScreen(viewModel = firestoreViewModel, activity = this)
+                    App()
+                    //AddTaskToTaskScreen(viewModel = firestoreViewModel, activity = this)
                     Injection.addDependency(Firebase.firestore)
                     Injection.addDependency(Firebase.analytics)
                     Injection.addDependency(Gson())
-                    Injection.addDependency(FirestoreRepositoryImpl())
                 }
             }
         }
@@ -273,16 +247,7 @@ class MainActivity : ComponentActivity() {
 @RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun App() {
-   // FirestoreNavGraph()
+    FirestoreNavGraph()
 
 
-}
-
-@RequiresApi(Build.VERSION_CODES.P)
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    FirestoreComposeAppTheme {
-        Greeting("Android")
-    }
 }
