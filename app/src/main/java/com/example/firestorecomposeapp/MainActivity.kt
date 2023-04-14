@@ -32,6 +32,7 @@ import com.example.firestorecomposeapp.firestore.location.LocationReceiver.Compa
 import com.example.firestorecomposeapp.data.model.Task
 import com.example.firestorecomposeapp.firestore.FirestoreRepositoryImpl
 import com.example.firestorecomposeapp.navigation.FirestoreNavGraph
+import com.example.firestorecomposeapp.ui.screens.task.TaskScreen
 import com.example.firestorecomposeapp.ui.theme.FirestoreComposeAppTheme
 import com.example.firestorecomposeapp.util.DataState
 import com.example.firestorecomposeapp.viewmodel.FirestoreViewModel
@@ -65,12 +66,11 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MainScreen(firestoreViewModel, this)
+                    App()
                     Injection.addDependency(Firebase.firestore)
                     Injection.addDependency(Firebase.analytics)
                     Injection.addDependency(Gson())
                     Injection.addDependency(FirestoreRepositoryImpl())
-                    App()
                 }
             }
         }
@@ -92,185 +92,187 @@ class MainActivity : ComponentActivity() {
 
 
 
+//@RequiresApi(Build.VERSION_CODES.P)
+//@Composable
+//fun MainScreen(viewModel: FirestoreViewModel, activity: Activity){
+//    Scaffold(
+//        floatingActionButtonPosition = FabPosition.End,
+//        floatingActionButton = {
+//            FloatingActionButton(
+//                onClick = {
+//                    //todo Implement Floating Action Button action
+//                },
+//            ){
+//                Icon(imageVector = Icons.Filled.Add, contentDescription = "Add")
+//            }
+//        }
+//    ) {
+//
+//        var selectedTabIndex by remember { mutableStateOf(0) }
+//        val tabs = listOf("Task manager","Location SDK")
+//
+//        Column {
+//            TabRow(
+//                selectedTabIndex = selectedTabIndex) {
+//                tabs.forEachIndexed { index, title ->
+//                    Tab(
+//                        text = { Text(title) },
+//                        selected = selectedTabIndex == index,
+//                        onClick = { selectedTabIndex = index }
+//                    )
+//                }
+//            }
+//
+//            if ( selectedTabIndex == 0){
+//
+//
+//                val state = viewModel.viewTasks.value
+//
+//                when(state){
+//                    is DataState.LOADING -> {}
+//                    is DataState.SUCCESS -> {
+//                        ShowItems(state.response,activity)
+//                    }
+//                    is DataState.ERROR -> {}
+//                }
+//
+//
+//            } else {
+//                Column()
+//                {
+//                    val context = LocalContext.current
+//                    val locationApi = LocationApiImpl(context)
+//                    val notification = Notification()
+//                    val locationManager = getSystemService(context, LocationManager::class.java)
+//
+//
+//                    Button(onClick = {
+//                        locationApi.startTracking(3000L, notification){
+//                            val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+//                            startActivity(context, intent, bundleOf(Pair("x","")))
+//                        }
+//                    }) {
+//                        Text(text = "Track Location")
+//                    }
+//
+//                    Button(onClick = {
+//                        locationApi.stopTracking()
+//                    }) {
+//                        Text(text = "Stop Tracking")
+//                    }
+//
+//                    Button(onClick = {
+//                        Toast.makeText(context, "${locationApi.isLocationEnabled()}", Toast.LENGTH_SHORT).show()
+//                    }) {
+//                        Text(text = "Tracking Status")
+//                    }
+//
+//                    Button(onClick = {
+//                        Toast.makeText(context, "${locationApi.checkPermissions()}", Toast.LENGTH_SHORT).show()
+//                    }) {
+//                        Text(text = "Check Permission")
+//                    }
+//
+//                    Button(onClick = {
+//                        locationApi.requestPermissions{
+//                            if (it){
+//                                Toast.makeText(context, "Permission granted", Toast.LENGTH_SHORT).show()
+//                            }else{
+//                                ActivityCompat.requestPermissions(
+//                                    activity,
+//                                    arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
+//                                    1
+//                                )
+//                            }
+//                        }
+//                    }) {
+//                        Text(text = "Request Permission")
+//                    }
+//
+//                    Button(onClick = {
+//                        locationApi.requestPermissions{
+//                            if (it){
+//                                Toast.makeText(context, "Permission granted", Toast.LENGTH_SHORT).show()
+//                            }else{
+//                                ActivityCompat.requestPermissions(
+//                                    activity,
+//                                    arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
+//                                    1
+//                                )
+//                            }
+//                        }
+//                    }) {
+//                        Text(text = "Enable Location")
+//                    }
+//                }
+//
+//            }
+//
+//        }
+//
+//
+//    }
+//
+//
+//}
+//
+//@Composable
+//fun EntryTaskScreen(viewModel: FirestoreViewModel){
+//    val task: MutableState<Task> = remember{ mutableStateOf(Task()) }
+//
+//    Column {
+//        TextField(
+//            value = task.value.title ,
+//            onValueChange = {task.value.copy(title = it) }
+//        )
+//        TextField(
+//            value = task.value.title ,
+//            onValueChange = {task.value.copy(category = it) }
+//        )
+//        TextField(
+//            value = task.value.title ,
+//            onValueChange = {task.value.copy(location = it) }
+//        )
+//        TextField(
+//            value = task.value.title ,
+//            onValueChange = {task.value.copy(time = it) }
+//        )
+//
+//        Button(onClick = { viewModel.viewTasks.value }) {
+//            Text(text = "SAVE")
+//        }
+//
+//    }
+//}
+//
+//@Composable
+//fun ShowItems(response: List<Task>, activity: Activity) {
+//    LazyColumn{
+//        items(items = response) {
+//            TaskItem(task = it)
+//        }
+//    }
+//}
+//
+//@Composable
+//fun TaskItem(task: Task) {
+//    Card {
+//        Column {
+//            Text(text =task.time)
+//            Text(text =task.title)
+//            Text(text =task.category)
+//            Text(text =task.location)
+//        }
+//    }
+//}
+
 @RequiresApi(Build.VERSION_CODES.P)
-@Composable
-fun MainScreen(viewModel: FirestoreViewModel, activity: Activity){
-    Scaffold(
-        floatingActionButtonPosition = FabPosition.End,
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    //todo Implement Floating Action Button action
-                },
-            ){
-                Icon(imageVector = Icons.Filled.Add, contentDescription = "Add")
-            }
-        }
-    ) {
-
-        var selectedTabIndex by remember { mutableStateOf(0) }
-        val tabs = listOf("Task manager","Location SDK")
-
-        Column {
-            TabRow(
-                selectedTabIndex = selectedTabIndex) {
-                tabs.forEachIndexed { index, title ->
-                    Tab(
-                        text = { Text(title) },
-                        selected = selectedTabIndex == index,
-                        onClick = { selectedTabIndex = index }
-                    )
-                }
-            }
-
-            if ( selectedTabIndex == 0){
-
-
-                val state = viewModel.viewTasks.value
-
-                when(state){
-                    is DataState.LOADING -> {}
-                    is DataState.SUCCESS -> {
-                        ShowItems(state.response,activity)
-                    }
-                    is DataState.ERROR -> {}
-                }
-
-
-            } else {
-                Column()
-                {
-                    val context = LocalContext.current
-                    val locationApi = LocationApiImpl(context)
-                    val notification = Notification()
-                    val locationManager = getSystemService(context, LocationManager::class.java)
-
-
-                    Button(onClick = {
-                        locationApi.startTracking(3000L, notification){
-                            val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-                            startActivity(context, intent, bundleOf(Pair("x","")))
-                        }
-                    }) {
-                        Text(text = "Track Location")
-                    }
-
-                    Button(onClick = {
-                        locationApi.stopTracking()
-                    }) {
-                        Text(text = "Stop Tracking")
-                    }
-
-                    Button(onClick = {
-                        Toast.makeText(context, "${locationApi.isLocationEnabled()}", Toast.LENGTH_SHORT).show()
-                    }) {
-                        Text(text = "Tracking Status")
-                    }
-
-                    Button(onClick = {
-                        Toast.makeText(context, "${locationApi.checkPermissions()}", Toast.LENGTH_SHORT).show()
-                    }) {
-                        Text(text = "Check Permission")
-                    }
-
-                    Button(onClick = {
-                        locationApi.requestPermissions{
-                            if (it){
-                                Toast.makeText(context, "Permission granted", Toast.LENGTH_SHORT).show()
-                            }else{
-                                ActivityCompat.requestPermissions(
-                                    activity,
-                                    arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
-                                    1
-                                )
-                            }
-                        }
-                    }) {
-                        Text(text = "Request Permission")
-                    }
-
-                    Button(onClick = {
-                        locationApi.requestPermissions{
-                            if (it){
-                                Toast.makeText(context, "Permission granted", Toast.LENGTH_SHORT).show()
-                            }else{
-                                ActivityCompat.requestPermissions(
-                                    activity,
-                                    arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
-                                    1
-                                )
-                            }
-                        }
-                    }) {
-                        Text(text = "Enable Location")
-                    }
-                }
-
-            }
-
-        }
-
-
-    }
-
-
-}
-
-@Composable
-fun EntryTaskScreen(viewModel: FirestoreViewModel){
-    val task: MutableState<Task> = remember{ mutableStateOf(Task()) }
-
-    Column {
-        TextField(
-            value = task.value.title ,
-            onValueChange = {task.value.copy(title = it) }
-        )
-        TextField(
-            value = task.value.title ,
-            onValueChange = {task.value.copy(category = it) }
-        )
-        TextField(
-            value = task.value.title ,
-            onValueChange = {task.value.copy(location = it) }
-        )
-        TextField(
-            value = task.value.title ,
-            onValueChange = {task.value.copy(time = it) }
-        )
-
-        Button(onClick = { viewModel.viewTasks.value }) {
-            Text(text = "SAVE")
-        }
-
-    }
-}
-
-@Composable
-fun ShowItems(response: List<Task>, activity: Activity) {
-    LazyColumn{
-        items(items = response) {
-            TaskItem(task = it)
-        }
-    }
-}
-
-@Composable
-fun TaskItem(task: Task) {
-    Card {
-        Column {
-            Text(text =task.time)
-            Text(text =task.title)
-            Text(text =task.category)
-            Text(text =task.location)
-        }
-    }
-}
-
 @Composable
 fun App() {
     FirestoreNavGraph()
 }
 
+@RequiresApi(Build.VERSION_CODES.P)
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
